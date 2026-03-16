@@ -97,12 +97,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
                 StreamMessage::Fill(fill) => {
                     println!(
-                        "[FILL] {} | order={} | {} {} @ {}c | {} contracts | taker={}",
+                        "[FILL] {} | order={} | {} {} @ {} | {} contracts | taker={}",
                         fill.market_ticker,
                         fill.order_id,
                         format!("{:?}", fill.action).to_uppercase(),
                         format!("{:?}", fill.side).to_uppercase(),
-                        fill.yes_price,
+                        fill.yes_price_dollars,
                         fill.count,
                         fill.is_taker
                     );

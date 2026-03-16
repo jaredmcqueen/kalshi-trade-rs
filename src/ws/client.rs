@@ -1359,7 +1359,7 @@ mod tests {
             msg: super::super::message::StreamMessage::Ticker(super::super::message::TickerData {
                 market_ticker: "TEST".to_string(),
                 market_id: None,
-                price: 50,
+                price_dollars: "0.500".to_string(),
                 yes_bid: 49,
                 yes_ask: 51,
                 volume: 100,
@@ -1367,7 +1367,6 @@ mod tests {
                 dollar_volume: 5000,
                 dollar_open_interest: 2500,
                 ts: 1234567890,
-                price_dollars: None,
                 yes_bid_dollars: None,
                 yes_ask_dollars: None,
                 no_bid_dollars: None,

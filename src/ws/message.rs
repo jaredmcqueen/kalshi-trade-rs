@@ -73,12 +73,6 @@ pub struct UserOrderData {
     /// Order status (resting, canceled, executed).
     #[serde(default)]
     pub status: Option<OrderStatus>,
-    /// Price in cents (1-99).
-    #[serde(default)]
-    pub yes_price: Option<i64>,
-    /// Price in cents (1-99).
-    #[serde(default)]
-    pub no_price: Option<i64>,
     /// Price in fixed-point dollars.
     #[serde(default)]
     pub yes_price_dollars: Option<String>,
@@ -267,8 +261,8 @@ pub struct OrderbookDeltaData {
     /// Market UUID identifier.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub market_id: Option<String>,
-    /// Price level being updated (1-99 cents).
-    pub price: i64,
+    /// Price level being updated in dollars.
+    pub price_dollars: String,
     /// Change in quantity (positive = increase, negative = decrease).
     pub delta: i64,
     /// Side of the orderbook being updated.
@@ -276,12 +270,16 @@ pub struct OrderbookDeltaData {
     /// Delta (fixed-point decimal string).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub delta_fp: Option<String>,
-    /// Price in dollar format.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub price_dollars: Option<String>,
     /// Client order ID if the subscriber triggered this change.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub client_order_id: Option<String>,
+}
+
+impl OrderbookDeltaData {
+    /// Returns the price in cents (1-99) parsed from `price_dollars`.
+    pub fn price_cents(&self) -> i64 {
+        (self.price_dollars.parse::<f64>().unwrap_or(0.0) * 100.0).round() as i64
+    }
 }
 
 /// Ticker data containing market price and volume information.
@@ -292,8 +290,8 @@ pub struct TickerData {
     /// Market UUID identifier.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub market_id: Option<String>,
-    /// Last traded price in cents (1-99).
-    pub price: i64,
+    /// Last traded price in dollars.
+    pub price_dollars: String,
     /// Best bid price for yes side in cents (1-99).
     pub yes_bid: i64,
     /// Best ask price for yes side in cents (1-99).
@@ -308,9 +306,6 @@ pub struct TickerData {
     pub dollar_open_interest: i64,
     /// Unix timestamp in seconds.
     pub ts: i64,
-    /// Price formatted in dollars.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub price_dollars: Option<String>,
     /// Yes bid in dollars.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub yes_bid_dollars: Option<String>,
@@ -351,10 +346,10 @@ pub struct TickerData {
 pub struct TradeData {
     /// Market ticker identifier.
     pub market_ticker: String,
-    /// Yes side price in cents (1-99).
-    pub yes_price: i64,
-    /// No side price in cents (1-99).
-    pub no_price: i64,
+    /// Yes side price in dollars.
+    pub yes_price_dollars: String,
+    /// No side price in dollars.
+    pub no_price_dollars: String,
     /// Number of contracts traded.
     pub count: i64,
     /// Side that took liquidity.
@@ -364,12 +359,6 @@ pub struct TradeData {
     /// Count (fixed-point decimal string).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub count_fp: Option<String>,
-    /// Yes price formatted in dollars.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub yes_price_dollars: Option<String>,
-    /// No price formatted in dollars.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub no_price_dollars: Option<String>,
 }
 
 /// Fill data for user order fill notifications.
@@ -385,9 +374,7 @@ pub struct FillData {
     pub is_taker: bool,
     /// Side of the fill.
     pub side: Side,
-    /// Price in cents (1-99).
-    pub yes_price: i64,
-    /// Price formatted in dollars.
+    /// Price in dollars.
     pub yes_price_dollars: String,
     /// Number of contracts filled.
     pub count: i64,
@@ -775,13 +762,13 @@ mod tests {
     fn test_orderbook_delta_deserialization() {
         let json = r#"{
             "market_ticker": "KXBTC-24DEC31-100000",
-            "price": 45,
+            "price_dollars": "0.450",
             "delta": 10,
             "side": "yes"
         }"#;
         let delta: OrderbookDeltaData = serde_json::from_str(json).unwrap();
         assert_eq!(delta.market_ticker, "KXBTC-24DEC31-100000");
-        assert_eq!(delta.price, 45);
+        assert_eq!(delta.price_dollars, "0.450");
         assert_eq!(delta.delta, 10);
         assert_eq!(delta.side, Side::Yes);
     }
@@ -790,7 +777,7 @@ mod tests {
     fn test_ticker_data_deserialization() {
         let json = r#"{
             "market_ticker": "KXBTC-24DEC31-100000",
-            "price": 45,
+            "price_dollars": "0.450",
             "yes_bid": 44,
             "yes_ask": 46,
             "volume": 1000,
@@ -801,7 +788,7 @@ mod tests {
         }"#;
         let ticker: TickerData = serde_json::from_str(json).unwrap();
         assert_eq!(ticker.market_ticker, "KXBTC-24DEC31-100000");
-        assert_eq!(ticker.price, 45);
+        assert_eq!(ticker.price_dollars, "0.450");
         assert_eq!(ticker.yes_bid, 44);
         assert_eq!(ticker.yes_ask, 46);
     }
@@ -810,16 +797,16 @@ mod tests {
     fn test_trade_data_deserialization() {
         let json = r#"{
             "market_ticker": "KXBTC-24DEC31-100000",
-            "yes_price": 45,
-            "no_price": 55,
+            "yes_price_dollars": "0.450",
+            "no_price_dollars": "0.550",
             "count": 10,
             "taker_side": "yes",
             "ts": 1704067200
         }"#;
         let trade: TradeData = serde_json::from_str(json).unwrap();
         assert_eq!(trade.market_ticker, "KXBTC-24DEC31-100000");
-        assert_eq!(trade.yes_price, 45);
-        assert_eq!(trade.no_price, 55);
+        assert_eq!(trade.yes_price_dollars, "0.450");
+        assert_eq!(trade.no_price_dollars, "0.550");
         assert_eq!(trade.count, 10);
         assert_eq!(trade.taker_side, Side::Yes);
     }

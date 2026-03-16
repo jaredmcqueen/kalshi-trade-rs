@@ -285,7 +285,7 @@ impl OrderbookAggregator {
                 summary,
                 delta: Some(OrderbookDelta {
                     side: delta.side,
-                    price: delta.price,
+                    price: delta.price_cents(),
                     quantity_change: delta.delta,
                     new_quantity: new_qty,
                 }),
@@ -470,10 +470,9 @@ mod tests {
         let delta = OrderbookDeltaData {
             market_ticker: "TEST".to_string(),
             market_id: None,
-            price: 46,
+            price_dollars: "0.460".to_string(),
             delta: 50,
             side: Side::Yes,
-            price_dollars: None,
             delta_fp: None,
             client_order_id: None,
         };
@@ -617,10 +616,9 @@ mod tests {
             &OrderbookDeltaData {
                 market_ticker: "TEST".to_string(),
                 market_id: None,
-                price: 46,
+                price_dollars: "0.460".to_string(),
                 delta: 75,
                 side: Side::Yes,
-                price_dollars: None,
                 delta_fp: None,
                 client_order_id: None,
             },
@@ -630,10 +628,9 @@ mod tests {
             &OrderbookDeltaData {
                 market_ticker: "TEST".to_string(),
                 market_id: None,
-                price: 44,
+                price_dollars: "0.440".to_string(),
                 delta: -200,
                 side: Side::Yes,
-                price_dollars: None,
                 delta_fp: None,
                 client_order_id: None,
             },
@@ -659,10 +656,9 @@ mod tests {
             &OrderbookDeltaData {
                 market_ticker: "TEST".to_string(),
                 market_id: None,
-                price: 45,
+                price_dollars: "0.450".to_string(),
                 delta: 100,
                 side: Side::Yes,
-                price_dollars: None,
                 delta_fp: None,
                 client_order_id: None,
             },
