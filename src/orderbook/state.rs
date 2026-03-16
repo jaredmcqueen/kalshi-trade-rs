@@ -60,7 +60,7 @@ impl OrderbookState {
         };
 
         let current = levels.get(&price_cents).copied().unwrap_or(0);
-        let new_qty = current + delta.delta;
+        let new_qty = current + delta.delta_quantity();
 
         if new_qty <= 0 {
             levels.remove(&price_cents);
@@ -236,7 +236,7 @@ mod tests {
             market_ticker: "TEST".to_string(),
             market_id: None,
             price_dollars: "0.450".to_string(),
-            delta: 100,
+            delta: Some(100),
             side: Side::Yes,
             delta_fp: None,
             client_order_id: None,
@@ -256,7 +256,7 @@ mod tests {
             market_ticker: "TEST".to_string(),
             market_id: None,
             price_dollars: "0.450".to_string(),
-            delta: 100,
+            delta: Some(100),
             side: Side::Yes,
             delta_fp: None,
             client_order_id: None,
@@ -268,7 +268,7 @@ mod tests {
             market_ticker: "TEST".to_string(),
             market_id: None,
             price_dollars: "0.450".to_string(),
-            delta: 50,
+            delta: Some(50),
             side: Side::Yes,
             delta_fp: None,
             client_order_id: None,
@@ -286,7 +286,7 @@ mod tests {
             market_ticker: "TEST".to_string(),
             market_id: None,
             price_dollars: "0.450".to_string(),
-            delta: 100,
+            delta: Some(100),
             side: Side::Yes,
             delta_fp: None,
             client_order_id: None,
@@ -298,7 +298,7 @@ mod tests {
             market_ticker: "TEST".to_string(),
             market_id: None,
             price_dollars: "0.450".to_string(),
-            delta: -30,
+            delta: Some(-30),
             side: Side::Yes,
             delta_fp: None,
             client_order_id: None,
@@ -316,7 +316,7 @@ mod tests {
             market_ticker: "TEST".to_string(),
             market_id: None,
             price_dollars: "0.450".to_string(),
-            delta: 100,
+            delta: Some(100),
             side: Side::Yes,
             delta_fp: None,
             client_order_id: None,
@@ -328,7 +328,7 @@ mod tests {
             market_ticker: "TEST".to_string(),
             market_id: None,
             price_dollars: "0.450".to_string(),
-            delta: -100,
+            delta: Some(-100),
             side: Side::Yes,
             delta_fp: None,
             client_order_id: None,
@@ -347,7 +347,7 @@ mod tests {
             market_ticker: "TEST".to_string(),
             market_id: None,
             price_dollars: "0.450".to_string(),
-            delta: 50,
+            delta: Some(50),
             side: Side::Yes,
             delta_fp: None,
             client_order_id: None,
@@ -359,7 +359,7 @@ mod tests {
             market_ticker: "TEST".to_string(),
             market_id: None,
             price_dollars: "0.450".to_string(),
-            delta: -100,
+            delta: Some(-100),
             side: Side::Yes,
             delta_fp: None,
             client_order_id: None,

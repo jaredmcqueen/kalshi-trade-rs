@@ -263,8 +263,9 @@ pub struct OrderbookDeltaData {
     pub market_id: Option<String>,
     /// Price level being updated in dollars.
     pub price_dollars: String,
-    /// Change in quantity (positive = increase, negative = decrease).
-    pub delta: i64,
+    /// Change in quantity (positive = increase, negative = decrease). Removed in fixed-point migration; use delta_fp.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub delta: Option<i64>,
     /// Side of the orderbook being updated.
     pub side: Side,
     /// Delta (fixed-point decimal string).
@@ -279,6 +280,18 @@ impl OrderbookDeltaData {
     /// Returns the price in cents (1-99) parsed from `price_dollars`.
     pub fn price_cents(&self) -> i64 {
         (self.price_dollars.parse::<f64>().unwrap_or(0.0) * 100.0).round() as i64
+    }
+
+    /// Returns the quantity change, preferring `delta` and falling back to parsing `delta_fp`.
+    pub fn delta_quantity(&self) -> i64 {
+        if let Some(d) = self.delta {
+            return d;
+        }
+        self.delta_fp
+            .as_deref()
+            .and_then(|s| s.parse::<f64>().ok())
+            .map(|f| f.round() as i64)
+            .unwrap_or(0)
     }
 }
 
@@ -811,7 +824,7 @@ mod tests {
         let delta: OrderbookDeltaData = serde_json::from_str(json).unwrap();
         assert_eq!(delta.market_ticker, "KXBTC-24DEC31-100000");
         assert_eq!(delta.price_dollars, "0.450");
-        assert_eq!(delta.delta, 10);
+        assert_eq!(delta.delta, Some(10));
         assert_eq!(delta.side, Side::Yes);
     }
 
