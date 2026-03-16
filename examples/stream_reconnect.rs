@@ -72,7 +72,9 @@ async fn run_stream(config: &KalshiConfig) -> Result<String, Box<dyn std::error:
                 StreamMessage::Fill(f) => {
                     println!(
                         "[FILL] {} @ {} x{}",
-                        f.market_ticker, f.yes_price_dollars, f.count
+                        f.market_ticker,
+                        f.yes_price_dollars,
+                        f.count_fp.as_deref().unwrap_or("?"),
                     );
                 }
                 _ => {}

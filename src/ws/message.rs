@@ -292,18 +292,24 @@ pub struct TickerData {
     pub market_id: Option<String>,
     /// Last traded price in dollars.
     pub price_dollars: String,
-    /// Best bid price for yes side in cents (1-99).
-    pub yes_bid: i64,
-    /// Best ask price for yes side in cents (1-99).
-    pub yes_ask: i64,
-    /// Number of individual contracts traded.
-    pub volume: i64,
-    /// Number of active contracts (open interest).
-    pub open_interest: i64,
-    /// Dollar volume traded.
-    pub dollar_volume: i64,
-    /// Dollar value of open interest.
-    pub dollar_open_interest: i64,
+    /// Best bid price for yes side in cents (1-99). Removed in fixed-point migration.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub yes_bid: Option<i64>,
+    /// Best ask price for yes side in cents (1-99). Removed in fixed-point migration.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub yes_ask: Option<i64>,
+    /// Number of individual contracts traded. Removed in fixed-point migration.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub volume: Option<i64>,
+    /// Number of active contracts (open interest). Removed in fixed-point migration.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub open_interest: Option<i64>,
+    /// Dollar volume traded. Removed in fixed-point migration.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dollar_volume: Option<i64>,
+    /// Dollar value of open interest. Removed in fixed-point migration.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dollar_open_interest: Option<i64>,
     /// Unix timestamp in seconds.
     pub ts: i64,
     /// Yes bid in dollars.
@@ -350,8 +356,9 @@ pub struct TradeData {
     pub yes_price_dollars: String,
     /// No side price in dollars.
     pub no_price_dollars: String,
-    /// Number of contracts traded.
-    pub count: i64,
+    /// Number of contracts traded. Removed in fixed-point migration; use count_fp.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub count: Option<i64>,
     /// Side that took liquidity.
     pub taker_side: Side,
     /// Unix timestamp in seconds.
@@ -376,8 +383,9 @@ pub struct FillData {
     pub side: Side,
     /// Price in dollars.
     pub yes_price_dollars: String,
-    /// Number of contracts filled.
-    pub count: i64,
+    /// Number of contracts filled. Removed in fixed-point migration; use count_fp.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub count: Option<i64>,
     /// Count (fixed-point decimal string).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub count_fp: Option<String>,
@@ -432,6 +440,18 @@ pub struct MarketPositionData {
     /// Volume (fixed-point decimal string).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub volume_fp: Option<String>,
+    /// Position cost in dollars (fixed-point string).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub position_cost_dollars: Option<String>,
+    /// Realized PnL in dollars (fixed-point string).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub realized_pnl_dollars: Option<String>,
+    /// Fees paid in dollars (fixed-point string).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fees_paid_dollars: Option<String>,
+    /// Position fee cost in dollars (fixed-point string).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub position_fee_cost_dollars: Option<String>,
 }
 
 /// Additional metadata included with market creation events.
@@ -560,10 +580,13 @@ pub struct RfqData {
     /// Event ticker.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub event_ticker: Option<String>,
-    /// Number of contracts.
+    /// Number of contracts. Removed in fixed-point migration; use contracts_fp.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub contracts: Option<i64>,
-    /// Target cost in centi-cents.
+    /// Number of contracts (fixed-point decimal string).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub contracts_fp: Option<String>,
+    /// Target cost in centi-cents. Removed in fixed-point migration; use target_cost_dollars.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub target_cost: Option<i64>,
     /// Target cost in dollars.
@@ -612,10 +635,12 @@ pub struct QuoteData {
     pub rfq_creator_id: String,
     /// Market ticker.
     pub market_ticker: String,
-    /// Yes bid price in cents.
-    pub yes_bid: i64,
-    /// No bid price in cents.
-    pub no_bid: i64,
+    /// Yes bid price in cents. Removed in fixed-point migration; use yes_bid_dollars.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub yes_bid: Option<i64>,
+    /// No bid price in cents. Removed in fixed-point migration; use no_bid_dollars.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub no_bid: Option<i64>,
     /// Yes bid in dollars.
     pub yes_bid_dollars: String,
     /// No bid in dollars.
@@ -625,13 +650,19 @@ pub struct QuoteData {
     /// Event ticker.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub event_ticker: Option<String>,
-    /// Yes contracts offered.
+    /// Yes contracts offered. Removed in fixed-point migration; use yes_contracts_offered_fp.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub yes_contracts_offered: Option<i64>,
-    /// No contracts offered.
+    /// No contracts offered. Removed in fixed-point migration; use no_contracts_offered_fp.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub no_contracts_offered: Option<i64>,
-    /// RFQ target cost in centi-cents.
+    /// Yes contracts offered (fixed-point decimal string).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub yes_contracts_offered_fp: Option<String>,
+    /// No contracts offered (fixed-point decimal string).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub no_contracts_offered_fp: Option<String>,
+    /// RFQ target cost in centi-cents. Removed in fixed-point migration; use rfq_target_cost_dollars.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rfq_target_cost: Option<i64>,
     /// RFQ target cost in dollars.
@@ -652,10 +683,12 @@ pub struct QuoteAcceptedData {
     pub rfq_creator_id: String,
     /// Market ticker.
     pub market_ticker: String,
-    /// Yes bid price in cents.
-    pub yes_bid: i64,
-    /// No bid price in cents.
-    pub no_bid: i64,
+    /// Yes bid price in cents. Removed in fixed-point migration; use yes_bid_dollars.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub yes_bid: Option<i64>,
+    /// No bid price in cents. Removed in fixed-point migration; use no_bid_dollars.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub no_bid: Option<i64>,
     /// Yes bid in dollars.
     pub yes_bid_dollars: String,
     /// No bid in dollars.
@@ -663,13 +696,22 @@ pub struct QuoteAcceptedData {
     /// Event ticker.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub event_ticker: Option<String>,
-    /// Yes contracts offered.
+    /// Yes contracts offered. Removed in fixed-point migration; use yes_contracts_offered_fp.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub yes_contracts_offered: Option<i64>,
-    /// No contracts offered.
+    /// No contracts offered. Removed in fixed-point migration; use no_contracts_offered_fp.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub no_contracts_offered: Option<i64>,
-    /// RFQ target cost in centi-cents.
+    /// Yes contracts offered (fixed-point decimal string).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub yes_contracts_offered_fp: Option<String>,
+    /// No contracts offered (fixed-point decimal string).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub no_contracts_offered_fp: Option<String>,
+    /// Contracts accepted (fixed-point decimal string).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub contracts_accepted_fp: Option<String>,
+    /// RFQ target cost in centi-cents. Removed in fixed-point migration; use rfq_target_cost_dollars.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rfq_target_cost: Option<i64>,
     /// RFQ target cost in dollars.
@@ -789,8 +831,8 @@ mod tests {
         let ticker: TickerData = serde_json::from_str(json).unwrap();
         assert_eq!(ticker.market_ticker, "KXBTC-24DEC31-100000");
         assert_eq!(ticker.price_dollars, "0.450");
-        assert_eq!(ticker.yes_bid, 44);
-        assert_eq!(ticker.yes_ask, 46);
+        assert_eq!(ticker.yes_bid, Some(44));
+        assert_eq!(ticker.yes_ask, Some(46));
     }
 
     #[test]
@@ -807,8 +849,42 @@ mod tests {
         assert_eq!(trade.market_ticker, "KXBTC-24DEC31-100000");
         assert_eq!(trade.yes_price_dollars, "0.450");
         assert_eq!(trade.no_price_dollars, "0.550");
-        assert_eq!(trade.count, 10);
+        assert_eq!(trade.count, Some(10));
         assert_eq!(trade.taker_side, Side::Yes);
+    }
+
+    #[test]
+    fn test_trade_data_deserialization_fp_migration() {
+        // After fixed-point migration: count is removed, count_fp is used instead.
+        let json = r#"{
+            "market_ticker": "KXBTC-24DEC31-100000",
+            "yes_price_dollars": "0.450",
+            "no_price_dollars": "0.550",
+            "count_fp": "10.0000",
+            "taker_side": "yes",
+            "ts": 1704067200
+        }"#;
+        let trade: TradeData = serde_json::from_str(json).unwrap();
+        assert_eq!(trade.count, None);
+        assert_eq!(trade.count_fp, Some("10.0000".to_string()));
+    }
+
+    #[test]
+    fn test_ticker_data_deserialization_fp_migration() {
+        // After fixed-point migration: yes_bid/yes_ask/volume/open_interest are removed.
+        let json = r#"{
+            "market_ticker": "KXBTC-24DEC31-100000",
+            "price_dollars": "0.450",
+            "yes_bid_dollars": "0.44",
+            "yes_ask_dollars": "0.46",
+            "volume_fp": "1000.0000",
+            "open_interest_fp": "500.0000",
+            "ts": 1704067200
+        }"#;
+        let ticker: TickerData = serde_json::from_str(json).unwrap();
+        assert_eq!(ticker.yes_bid, None);
+        assert_eq!(ticker.yes_bid_dollars, Some("0.44".to_string()));
+        assert_eq!(ticker.volume_fp, Some("1000.0000".to_string()));
     }
 
     #[test]
@@ -881,7 +957,7 @@ mod tests {
             StreamMessage::Communication(CommunicationData::QuoteCreated(data)) => {
                 assert_eq!(data.quote_id, "q-001");
                 assert_eq!(data.rfq_id, "rfq-001");
-                assert_eq!(data.yes_bid, 45);
+                assert_eq!(data.yes_bid, Some(45));
             }
             other => panic!("Expected QuoteCreated, got {other:?}"),
         }

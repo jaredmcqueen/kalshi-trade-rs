@@ -77,18 +77,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
                 StreamMessage::Ticker(ticker) => {
                     println!(
-                        "[TICKER] {} | price: {} | bid: {}¢ | ask: {}¢ | vol: {}",
+                        "[TICKER] {} | price: {} | bid: {} | ask: {} | vol: {}",
                         ticker.market_ticker,
                         ticker.price_dollars,
-                        ticker.yes_bid,
-                        ticker.yes_ask,
-                        ticker.volume
+                        ticker.yes_bid_dollars.as_deref().unwrap_or("?"),
+                        ticker.yes_ask_dollars.as_deref().unwrap_or("?"),
+                        ticker.volume_fp.as_deref().unwrap_or("?"),
                     );
                 }
                 StreamMessage::Trade(trade) => {
                     println!(
                         "[TRADE]  {} | {} contracts @ {} | taker: {:?}",
-                        trade.market_ticker, trade.count, trade.yes_price_dollars, trade.taker_side
+                        trade.market_ticker,
+                        trade.count_fp.as_deref().unwrap_or("?"),
+                        trade.yes_price_dollars,
+                        trade.taker_side
                     );
                 }
                 StreamMessage::MarketLifecycle(lifecycle) => {

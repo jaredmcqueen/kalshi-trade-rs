@@ -103,7 +103,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         format!("{:?}", fill.action).to_uppercase(),
                         format!("{:?}", fill.side).to_uppercase(),
                         fill.yes_price_dollars,
-                        fill.count,
+                        fill.count_fp.as_deref().unwrap_or("?"),
                         fill.is_taker
                     );
                 }
